@@ -47,6 +47,7 @@ from queue import Queue
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from utils import content_to_dicts
 
 load_dotenv(override=True)
 if os.getenv("ANTHROPIC_BASE_URL"):
@@ -180,7 +181,7 @@ def run_subagent(prompt: str, agent_type: str = "Explore") -> str:
     resp = None
     for _ in range(30):
         resp = client.messages.create(model=MODEL, messages=sub_msgs, tools=sub_tools, max_tokens=8000)
-        sub_msgs.append({"role": "assistant", "content": resp.content})
+        sub_msgs.append({"role": "assistant", "content": content_to_dicts(resp.content)})
         if resp.stop_reason != "tool_use":
             break
         results = []
@@ -468,7 +469,7 @@ class TeammateManager:
                 except Exception:
                     self._set_status(name, "shutdown")
                     return
-                messages.append({"role": "assistant", "content": response.content})
+                messages.append({"role": "assistant", "content": content_to_dicts(response.content)})
                 if response.stop_reason != "tool_use":
                     break
                 results = []
@@ -675,7 +676,7 @@ def agent_loop(messages: list):
             model=MODEL, system=SYSTEM, messages=messages,
             tools=TOOLS, max_tokens=8000,
         )
-        messages.append({"role": "assistant", "content": response.content})
+        messages.append({"role": "assistant", "content": content_to_dicts(response.content)})
         if response.stop_reason != "tool_use":
             return
         # Tool execution

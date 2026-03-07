@@ -28,6 +28,7 @@ from pathlib import Path
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from utils import content_to_dicts
 
 load_dotenv(override=True)
 
@@ -119,7 +120,7 @@ def run_subagent(prompt: str) -> str:
             model=MODEL, system=SUBAGENT_SYSTEM, messages=sub_messages,
             tools=CHILD_TOOLS, max_tokens=8000,
         )
-        sub_messages.append({"role": "assistant", "content": response.content})
+        sub_messages.append({"role": "assistant", "content": content_to_dicts(response.content)})
         if response.stop_reason != "tool_use":
             break
         results = []
@@ -146,7 +147,7 @@ def agent_loop(messages: list):
             model=MODEL, system=SYSTEM, messages=messages,
             tools=PARENT_TOOLS, max_tokens=8000,
         )
-        messages.append({"role": "assistant", "content": response.content})
+        messages.append({"role": "assistant", "content": content_to_dicts(response.content)})
         if response.stop_reason != "tool_use":
             return
         results = []

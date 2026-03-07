@@ -24,6 +24,7 @@ from pathlib import Path
 
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from utils import content_to_dicts
 
 load_dotenv(override=True)
 
@@ -116,7 +117,7 @@ def agent_loop(messages: list):
             model=MODEL, system=SYSTEM, messages=messages,
             tools=TOOLS, max_tokens=8000,
         )
-        messages.append({"role": "assistant", "content": response.content})
+        messages.append({"role": "assistant", "content": content_to_dicts(response.content)})
         if response.stop_reason != "tool_use":
             return
         results = []
